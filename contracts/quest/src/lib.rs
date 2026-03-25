@@ -37,6 +37,7 @@ pub struct QuestInfo {
     pub token_addr: Address,
     pub created_at: u64,
     pub visibility: Visibility,
+    pub deadline: u64, // Unix timestamp; 0 = no deadline
 }
 
 #[contracterror]
@@ -120,6 +121,7 @@ impl QuestContract {
             token_addr,
             created_at: env.ledger().timestamp(),
             visibility: visibility.clone(),
+            deadline: 0,
         };
 
         env.storage().persistent().set(&DataKey::Quest(id), &quest);
@@ -240,6 +242,26 @@ impl QuestContract {
         Self::load_quest(&env, quest_id)?;
         let enrollees = Self::load_enrollees(&env, quest_id);
         Ok(enrollees.contains_key(user))
+    }
+
+    /// Update or clear the deadline for a quest. Owner only.
+    /// Pass 0 to remove the deadline.
+    pub fn set_deadline(env: Env, quest_id: u32, deadline: u64) -> Result<(), Error> {
+        let mut quest = Self::load_quest(&env, quest_id)?;
+        quest.owner.require_auth();
+        quest.deadline = deadline;
+        env.storage().persistent().set(&DataKey::Quest(quest_id), &quest);
+        Self::bump(&env, quest_id);
+        Ok(())
+    }
+
+    /// Returns true if the quest has a non-zero deadline that has passed.
+    pub fn is_expired(env: Env, quest_id: u32) -> Result<bool, Error> {
+        let quest = Self::load_quest(&env, quest_id)?;
+        if quest.deadline == 0 {
+            return Ok(false);
+        }
+        Ok(env.ledger().timestamp() > quest.deadline)
     }
 
     /// Get total quest count.
