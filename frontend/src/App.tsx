@@ -8,6 +8,7 @@ import { Dashboard } from "@/pages/dashboard"
 import { QuestView } from "@/pages/quest"
 import { Profile } from "@/pages/profile"
 import { NotFound } from "@/pages/not-found"
+import { ErrorBoundary } from "@/components/error-boundary"
 import { CreateQuest } from "@/pages/create-quest"
 
 // Theme Context
@@ -28,9 +29,14 @@ export function useTheme() {
   return useContext(ThemeContext)
 }
 
-interface AppState {
-  page: Page
-  questId: number | null
+function getInitialTheme(): Theme {
+  try {
+    const stored = localStorage.getItem("lernza-theme")
+    if (stored === "dark" || stored === "light") return stored
+  } catch {
+    return "light"
+  }
+  return "light"
 }
 
 // Scroll to top on route change
