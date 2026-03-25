@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress"
 import { useInView, useCountUp } from "@/hooks/use-animations"
 import {
   MOCK_WORKSPACES,
+  MOCK_WORKSPACE_STATS,
   MOCK_MILESTONES,
   MOCK_ENROLLEES,
   MOCK_COMPLETIONS,
@@ -42,6 +43,7 @@ export function WorkspaceView({ workspaceId, onBack }: WorkspaceViewProps) {
   )
 
   const ws = MOCK_WORKSPACES.find((w) => w.id === workspaceId)
+  const stats = MOCK_WORKSPACE_STATS[workspaceId]
   const milestones = MOCK_MILESTONES[workspaceId] || []
   const enrollees = MOCK_ENROLLEES[workspaceId] || []
   const completions = MOCK_COMPLETIONS[workspaceId] || []
@@ -49,7 +51,7 @@ const { toasts, addToast, removeToast } = useToast()
   const [statsRef, statsInView] = useInView()
   const [contentRef, contentInView] = useInView()
 
-  const totalReward = milestones.reduce((sum, m) => sum + m.rewardAmount, 0)
+  const totalReward = milestones.reduce((sum, m) => sum + m.reward_amount, 0)
   const completedMilestones = new Set(
     completions.filter((c) => c.completed).map((c) => c.milestoneId)
   ).size
@@ -59,11 +61,11 @@ const { toasts, addToast, removeToast } = useToast()
     .filter((m) =>
       completions.some((c) => c.milestoneId === m.id && c.completed)
     )
-    .reduce((sum, m) => sum + m.rewardAmount, 0)
+    .reduce((sum, m) => sum + m.reward_amount, 0)
 
   const enrolleesCount = useCountUp(enrollees.length, 400, statsInView)
   const milestonesCount = useCountUp(milestones.length, 400, statsInView)
-  const poolBalance = useCountUp(ws?.poolBalance ?? 0, 800, statsInView)
+  const poolBalance = useCountUp(stats?.poolBalance ?? 0, 800, statsInView)
   const totalRewardCount = useCountUp(totalReward, 800, statsInView)
 
   if (!ws) {
@@ -305,7 +307,7 @@ const { toasts, addToast, removeToast } = useToast()
                               <Badge
                                 variant={isCompleted ? "success" : "default"}
                               >
-                                {ms.rewardAmount} USDC
+                                {ms.reward_amount} USDC
                               </Badge>
                               {isExpanded ? (
                                 <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -395,7 +397,7 @@ const { toasts, addToast, removeToast } = useToast()
                       c.completed
                   )
                 )
-                .reduce((sum, m) => sum + m.rewardAmount, 0)
+                .reduce((sum, m) => sum + m.reward_amount, 0)
               const isAllDone =
                 completed === milestones.length && milestones.length > 0
 

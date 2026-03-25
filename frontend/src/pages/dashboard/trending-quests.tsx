@@ -2,10 +2,11 @@ import { Sparkles, Users, Coins } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatTokens } from "@/lib/utils"
-import type { Workspace } from "@/lib/mock-data"
+import type { WorkspaceInfo } from "@/lib/contract-types"
+import { MOCK_WORKSPACE_STATS } from "@/lib/mock-data"
 
 interface TrendingQuestsProps {
-  quests: Workspace[]
+  quests: WorkspaceInfo[]
   onSelectQuest: (id: number) => void
 }
 
@@ -16,7 +17,9 @@ export function TrendingQuests({ quests, onSelectQuest }: TrendingQuestsProps) {
         <Sparkles className="w-5 h-5" /> Trending Quests
       </h2>
       <div className="space-y-4">
-        {quests.map((quest) => (
+        {quests.map((quest) => {
+          const stats = MOCK_WORKSPACE_STATS[quest.id] || { enrolleeCount: 0, poolBalance: 0 };
+          return (
           <Card 
             key={quest.id} 
             className="card-tilt cursor-pointer border-[2px] border-border shadow-[4px_4px_0_var(--color-border)]"
@@ -33,15 +36,15 @@ export function TrendingQuests({ quests, onSelectQuest }: TrendingQuestsProps) {
             <CardContent className="p-4 pt-0">
               <div className="flex items-center gap-3 text-xs mt-2 text-muted-foreground">
                 <span className="flex items-center gap-1 font-bold">
-                  <Users className="w-3 h-3" /> {quest.enrolleeCount}
+                  <Users className="w-3 h-3" /> {stats.enrolleeCount}
                 </span>
                 <span className="flex items-center gap-1 font-bold">
-                  <Coins className="w-3 h-3" /> {formatTokens(quest.poolBalance)}
+                  <Coins className="w-3 h-3" /> {formatTokens(stats.poolBalance)}
                 </span>
               </div>
             </CardContent>
           </Card>
-        ))}
+        )})}
       </div>
     </div>
   )

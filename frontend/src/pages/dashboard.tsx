@@ -17,6 +17,7 @@ import { Progress } from "@/components/ui/progress"
 import { useWallet } from "@/hooks/use-wallet"
 import {
   MOCK_WORKSPACES,
+  MOCK_WORKSPACE_STATS,
   MOCK_MILESTONES,
   MOCK_COMPLETIONS,
   MOCK_PLATFORM_STATS,
@@ -194,6 +195,7 @@ export function Dashboard({ onSelectWorkspace, onCreateQuest }: DashboardProps) 
 
             <div className="grid gap-5 relative">
               {filteredWorkspaces.map((ws, i) => {
+                const stats = MOCK_WORKSPACE_STATS[ws.id] || { enrolleeCount: 0, milestoneCount: 0, poolBalance: 0 }
                 const milestones = MOCK_MILESTONES[ws.id] || []
                 const completions = MOCK_COMPLETIONS[ws.id] || []
                 const totalMilestones = milestones.length
@@ -201,7 +203,7 @@ export function Dashboard({ onSelectWorkspace, onCreateQuest }: DashboardProps) 
                   completions.filter((c) => c.completed).map((c) => c.milestoneId)
                 ).size
                 const totalReward = milestones.reduce(
-                  (sum, m) => sum + m.rewardAmount,
+                  (sum, m) => sum + m.reward_amount,
                   0
                 )
                 const earnedReward = milestones
@@ -210,7 +212,7 @@ export function Dashboard({ onSelectWorkspace, onCreateQuest }: DashboardProps) 
                       (c) => c.milestoneId === m.id && c.completed
                     )
                   )
-                  .reduce((sum, m) => sum + m.rewardAmount, 0)
+                  .reduce((sum, m) => sum + m.reward_amount, 0)
                 const isOwned = ws.owner === MOCK_OWNER
 
                 return (
@@ -250,15 +252,15 @@ export function Dashboard({ onSelectWorkspace, onCreateQuest }: DashboardProps) 
                       <div className="flex flex-wrap items-center gap-3 text-sm mb-4">
                         <Badge variant="secondary" className="gap-1">
                           <Users className="h-3 w-3" />
-                          {ws.enrolleeCount} enrolled
+                          {stats.enrolleeCount} enrolled
                         </Badge>
                         <Badge variant="secondary" className="gap-1">
                           <Target className="h-3 w-3" />
-                          {ws.milestoneCount} milestones
+                          {stats.milestoneCount} milestones
                         </Badge>
                         <Badge variant="default" className="gap-1">
                           <Coins className="h-3 w-3" />
-                          {formatTokens(ws.poolBalance)} USDC
+                          {formatTokens(stats.poolBalance)} USDC
                         </Badge>
                       </div>
 
