@@ -24,6 +24,9 @@ import {
   MOCK_COMPLETIONS,
 } from "@/lib/mock-data"
 import { formatTokens } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { ToastContainer } from "@/components/Toast"
+import { ShareButton } from "@/components/ShareButton"
 
 interface WorkspaceViewProps {
   workspaceId: number
@@ -35,7 +38,7 @@ type Tab = "milestones" | "enrollees"
 export function WorkspaceView({ workspaceId, onBack }: WorkspaceViewProps) {
   const [activeTab, setActiveTab] = useState<Tab>("milestones")
   const [expandedMilestone, setExpandedMilestone] = useState<number | null>(null)
-
+const { toasts, addToast, removeToast } = useToast()
   const ws = MOCK_WORKSPACES.find((w) => w.id === workspaceId)
   const milestones = MOCK_MILESTONES[workspaceId] || []
   const enrollees = MOCK_ENROLLEES[workspaceId] || []
@@ -125,6 +128,11 @@ export function WorkspaceView({ workspaceId, onBack }: WorkspaceViewProps) {
                 <Plus className="h-4 w-4" />
                 Add Milestone
               </Button>
+              <ShareButton
+          questId={workspaceId}
+          questName={ws.name}
+          onToast={addToast}
+        />
             </div>
           </div>
         </div>
@@ -224,6 +232,7 @@ export function WorkspaceView({ workspaceId, onBack }: WorkspaceViewProps) {
                   Add Milestone
                 </Button>
               </CardContent>
+          
             </Card>
           ) : (
             milestones.map((ms, i) => {
@@ -409,6 +418,7 @@ export function WorkspaceView({ workspaceId, onBack }: WorkspaceViewProps) {
           )}
         </div>
       )}
+       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   )
 }
